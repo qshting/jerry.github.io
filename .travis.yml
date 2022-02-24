@@ -1,0 +1,12 @@
+language: node_js
+node_js: stable # 安装Node当前的稳定版本
+branches:
+  only:
+    - master
+cache:
+  directories:
+    - node_modules # 要缓存的文件夹
+script:
+  - chmod u+x deploy.sh
+  - bash ./deploy.sh
+branch: master

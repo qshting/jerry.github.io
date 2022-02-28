@@ -10,6 +10,7 @@ const webpack4 = require('./frontend/webpack4/index.js');
 const typescript = require('./frontend/ts/index.js');
 const react = require('./frontend/react/index.js');
 const web = require('./frontend/web/index.js');
+const excellent = require('./frontend/excellent/index.js');
 
 // 框架
 const vue = require('./frameModule/vue/index.js');
@@ -44,6 +45,7 @@ module.exports = {
   '/frontend/babel/': babel,
   '/frontend/typescript/': typescript,
   '/frontend/web/': web,
+  '/frontend/excellent/': excellent,
 
   // 框架
   '/frameModule/vue/': vue,

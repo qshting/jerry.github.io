@@ -12,6 +12,7 @@ module.exports = [
         { text: '浏览器相关', link: '/frontend/web/'},
         { text: 'HTML5', link: '/frontend/html/'},
         { text: 'CSS3', link: '/frontend/css/'},
+        { text: '优秀博客', link: '/frontend/excellent/'},
       ]
     }, {
         text: '框架知识',

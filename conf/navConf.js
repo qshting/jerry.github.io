@@ -3,12 +3,14 @@ module.exports = [
     {
       text: '前端知识',
       items: [
-        { text: 'ES6', link: '/frontend/es6/'},
-        { text: 'Typescript', link: '/frontend/typescript/'},
-        { text: '重学JS基础', link: '/frontend/javascript/'},
+        { text: 'ECMAScript6', link: '/frontend/es6/'},
+        { text: 'TypeScript', link: '/frontend/typescript/'},
+        { text: 'JS基础专题', link: '/frontend/javascript/'},
         { text: 'JS技术专题', link: '/frontend/jsTopic/'},
+        { text: '---------------', link: ''},
         { text: 'Webpack', link: '/frontend/webpack/'},
         { text: 'Webpack4配置实战', link: '/frontend/webpack4/'},
+        { text: '---------------', link: ''},
         { text: '浏览器相关', link: '/frontend/web/'},
         { text: 'HTML5', link: '/frontend/html/'},
         { text: 'CSS3', link: '/frontend/css/'},

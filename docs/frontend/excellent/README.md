@@ -22,9 +22,12 @@ title: 知识概述
 
 ## 个人搭建
 [vuepress搭建blog发布github](https://juejin.cn/post/7021039133057351716)
+[VuePress范例](https://juejin.cn/post/7069375952358227982)
+
 - 1.创建博客仓库 Create a new repository
 - 2.设置GitHub pages
 进入博客的仓库 -> 选中顶部的Settings -> 选择Pages选项(获取博客地址)
 此时source，选择打包后生成的分支，如gh-pages分支（需注意）
 - 3.服务器上的 Git - 生成 SSH 公钥(注意用个人邮箱)
 - 4.自动部署 `ting`
+<!-- 键入通过的 ting -->

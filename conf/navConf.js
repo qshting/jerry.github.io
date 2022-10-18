@@ -5,8 +5,10 @@ module.exports = [
       items: [
         { text: 'ECMAScript6', link: '/frontend/es6/'},
         { text: 'TypeScript', link: '/frontend/typescript/'},
+        { text: '---------------', link: ''},
         { text: 'JS基础专题', link: '/frontend/javascript/'},
         { text: 'JS技术专题', link: '/frontend/jsTopic/'},
+        { text: 'JS优化专题', link: '/frontend/jsOpt/'},
         { text: '---------------', link: ''},
         { text: 'Webpack', link: '/frontend/webpack/'},
         { text: 'Webpack4配置实战', link: '/frontend/webpack4/'},

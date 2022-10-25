@@ -8,16 +8,16 @@ Vue生命周期总共分为8个阶段：创建create--> 挂载mount --> 更新up
 
 **(1) 下表包含如何在 setup () 内部调用生命周期钩子：**
 
-| 选项式API  | setup  | 描述 |
-| --- | --- | --- |
-| -- | beforeCreate | 组件实例被创建之初，组件的属性生效之前 |
-| --  | created | 组件实例已经完全创建，属性也绑定，但真实DOM还没有生成，$el还不可用 |
-| onBeforeMount | beforeMount | 在挂载开始之前被调用，相关的render函数首次被调用 |
+| 选项式API  | setup  | 描述                                         |
+| --- | --- |--------------------------------------------|
+| -- | beforeCreate | 组件实例被创建之初，组件的属性生效之前                        |
+| --  | created | 组件实例已经完全创建，属性也绑定，但真实DOM还没有生成，$el还不可用       |
+| onBeforeMount | beforeMount | 在挂载开始之前被调用，相关的render函数首次被调用                |
 | onMounted | mounted | el被创建的vm.$el替换，并挂载到实例上去之后调用该钩子(一般业务逻辑会在这里开始) |
-| onBeforeUpdate | beforeUpdate | 组件数据更新之前调用，发生在虚拟DOM打补丁之前 |
-| onUpdated | updated | 组件数据更新之后 |
-| onBeforeUnmount | beforeDestroy | 组件销毁前(主要解绑一些addEventListener监听的事件等) |
-| onUnmounted | destroyed | 组件销毁后 |
+| onBeforeUpdate | beforeUpdate | 组件数据更新之前调用，发生在虚拟DOM打补丁之前                   |
+| onUpdated | updated | 组件数据更新之后(根据data变化，会触发0或多次)                 |
+| onBeforeUnmount | beforeDestroy | 组件销毁前(主要解绑一些addEventListener监听的事件等)        |
+| onUnmounted | destroyed | 组件销毁后                                      |
 
 **(2) 父子组件生命周期钩子函数执行顺序**
 
@@ -28,6 +28,20 @@ Vue生命周期总共分为8个阶段：创建create--> 挂载mount --> 更新up
 子组件更新过程：
 
 父beforeUpdate -> 子beforeUpdate -> 子updated -> 父updated
+
+## 02.render渲染函数
+
+使用js的完全编程能力来渲染页面，用js来构建DOM,创建虚拟dom节点，生成template模板
+
+1) render方法的实质就是生成template模板
+2) render方法自带参数createElement，接受3个参数(html标签名，attrs属性配置，VNodes标签内部的html子节点)
+3) 通过这三个参数，可以生成一个完整的模板
+
+```js
+render:function(createElement,context){
+ return createElement(App)
+}
+```
 
 ## 02.computed 与 watch
 **(1)computed:**

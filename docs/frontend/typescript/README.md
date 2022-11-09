@@ -16,7 +16,7 @@ $ tsc helloworld.ts
 Boolean \ Number \ String \ Array \ Function \ Object \ Symbol \ undefined \ null
 void \ any \ never \ 元组 \ 枚举 \ 高级类型
 
-#### 1.基础类型
+### 1.基础类型
 ```js
 // 原始类型
 let isDone: boolean = false
@@ -28,12 +28,13 @@ let s1: symbol = Symbol()
 let s2 = Symbol()
 console.log(s1 === s2) //error
 ```
+**(1)any | unknow**
 
 **any 类型:** 全局超级类型
 
-**Unknow 类型:** 对any类型的补充，
-Unknow 类型只能被赋值给 any 类型和 Unknow 类型本身，当中间类型赋值变化时，会error
-Unknow 是不能调用属性和方法
+**unknow 类型:** 对any类型的补充，
+unknow 类型只能被赋值给 any 类型和 unknow 类型本身，当中间类型赋值变化时，会error
+unknow 是不能调用属性和方法
 
 **(2)void | undefined | null**
 ```js
@@ -65,7 +66,7 @@ let endless = () => {
 使用 never 避免出现新增了联合类型没有对应的实现，目的就是写出类型绝对安全的代码。
 ```
 
-#### 2.接口和对象类型
+### 2.接口和对象类型
 
 - 定义对象的方式要用关键字interface(让数据的结构满足约束的格式)
 - 或者让TypeScript 做自动类型判断或者更加精确的指示，如接口等
@@ -90,7 +91,7 @@ const person: Person = {
 }
 ```
 
-#### 3.数组类型
+### 3.数组类型
 ```js
 //写法1：类型加[]
 let arr1: number[] = [1, 2, 3]; //数字类型的数组
@@ -108,7 +109,7 @@ let tuple: [number, string] = [0, '1']
 let tuple: [number, string] = ['good', '1']  //error
 ```
 
-#### 4.函数类型
+### 4.函数类型
 
 函数类型有多种声明方式，一种是类型推断，或者是直接将一个函数的类型写全
 ```js
@@ -127,7 +128,7 @@ const fn: Add = (num: number, num2: number): number => {
 }
 ```
 
-#### 5.枚举类型
+### 5.枚举类型
 
 解决的问题:  1)可读性差,很难记住数字的含义;  2)可维护差,牵一发动全身
 
@@ -187,8 +188,9 @@ enum Char {
 
 ## 二.高级类型
 
-### 1.联合类型 ｜ 交叉类型 ｜ 类型断言
+### 1.联合类型 ｜ 交叉类型
 ```js
+// 联合类型 
 let myPhone: number | string  = '010-820'
 const fn = (something:number | boolean):boolean => {
      return !!something
@@ -207,23 +209,55 @@ const xiaoman = (man: People & Man) => {
 xiaoman({age: 18,height: 180,sex: 'male'});
 ```
 
-类型断言
+### 2.类型断言
+
 表示：值as类型　或　<类型>值
+
+1.类型断言：
 ```js
+let strLength: number = (someValue as string).length
+let strLength: number = (<string>someValue).length
+
+
 interface A {
-       run: string
-}
+    run: string
+}    
 interface B {
-       build: string
+    build: string
 }
- 
 const fn = (type: A | B): string => {
-       return (type as A).run
+    return (type as A).run
 }
-//可以使用类型断言来推断他传入的是A接口的值
+// 可以使用类型断言来推断他传入的是A接口的值
 ```
 
-### 2.内置对象
+2.非空断言
+
+x! --- 将从x值域中排除 null 和 undefined
+```js
+// 忽略 undefined 和 null 类型
+function myFunc(maybeString: string | undefined | null) {
+  const onlyString: string = maybeString;   // Error (严格语法时报错)
+  const ignoreUndefinedAndNull: string = maybeString!; // Ok
+}
+
+// 调用函数时忽略 undefined 类型
+type NumGenerator = () => number;
+
+function myFunc(numGenerator: NumGenerator | undefined) {
+  const num1 = numGenerator();    // Error
+  const num2 = numGenerator!();   //OK
+}
+```
+
+3.确定赋值断言
+
+确定赋值断言，Ts编译器就会知道该属性会被明确地赋值
+```js
+let x!: number
+```
+
+### 3.内置对象
 内置对象：它们可以直接在 TS 中当做定义好了的类型。
 - ECMAScript 的内置对象：Boolean、Number、string、RegExp、Date、Error
 - DOM 和 BOM 的内置对象：Document、HTMLElement、Event、NodeList 等
@@ -247,7 +281,7 @@ promise().then(res=>{
 })
 ```
 
-### 3.类型别名
+### 4.类型别名
 
 type 关键字（可以给一个类型定义一个名字）多用于符合类型
 定义类型别名,定义函数别名, 定义联合类型别名,定义值的别名
@@ -268,47 +302,8 @@ type value = boolean | 0 | '213'
 let s:value = true
 ```
 
-### 4.ts断言
-
-1.类型断言：
-```
-// “尖括号” 或者 as语法
-let strLength: number = (<string>someValue).length;
-let strLength: number = (someValue as string).length;
-```
-
-2.非空断言
-
-x! --- 将从x值域中排除 null 和 undefined
-```
-1) 忽略 undefined 和 null 类型
-function myFunc(maybeString: string | undefined | null) {
-  const onlyString: string = maybeString;   // Error (严格语法时报错)
-  const ignoreUndefinedAndNull: string = maybeString!; // Ok
-}
-
-2) 调用函数时忽略 undefined 类型
-type NumGenerator = () => number;
-
-function myFunc(numGenerator: NumGenerator | undefined) {
-  const num1 = numGenerator();    // Error
-  const num2 = numGenerator!();   //OK
-}
-```
-
-3.确定赋值断言
-```
-通过 let x!: number; 确定赋值断言，Ts编译器就会知道该属性会被明确地赋值
-```
 
 
-
-类型保护与区分类型
-字面量类型
-可辨识联合
-this类型
-索引类型
-映射类型
 
 ## 三.Class 类
 
@@ -516,184 +511,3 @@ const mao : Mao = new Mao(‘喵喵’)
 mao.eat()
 
 ```
-
-## 四.泛型
-
-泛型就是解决类、接口等方法的复用性问题,以及对不特定数据的支持问题的类型
-
-泛型 -- 语法 -- 名字<T1,  T2, ……>
-
-泛型为 函数、接口、类 定义类型变量
-
-```js
-function fn (arg: any) : any{ return arg }
-function fn (arg: string | number) : string | number{ return arg }
-
-function fn<T> (arg: T) : T{
-	return arg 
-}
-fn<number>(123)
-
-function fn<T, U> (arg: [T, U]) : [U, T]{
-	return [arg[1], arg[0]] 
-}
-fn<number, string>([123, ‘xxx’])
-```
-T/U是占位符，用来指定任意输入的类型。。不要试图假设T/U的类型
-
-
-### 1.泛型函数
-```js
-function fn (arg: number) : number {
-function fn<T> (arg: T) : T {
-	return arg
-} 
-let fn : (arg: number) => number = function (arg: number) : number {
-let fn : <T>(arg: T) => T = function (arg: T) : T {
-	 return arg
-}
-
-console.log( fn(18) )
-console.log( fn<number>(18) )
-```
-
-### 2.泛型接口
-```js
-interface Fn {
-	(arg: number) : number
-	<T>(arg: T) : T
-}
-let fn: Fn = (arg: number) => number { …… }
-let fn: Fn = <T>(arg: T) => T { …… }
-
-console.log(fn(18))
-console.log(fn<number>(18))
-```
-
-```js
-interface Fn<T> {
-	height (arg: T) : T;
-	age: T
-}
-let fn: Fn<number> = (arg) => { …… }
-let fn: Fn<number> = { …}
-
-console.log(fn(18))
-console.log(fn.height(18))
-
-```
-
-### 3.泛型类
-```js
-class Fanclass <T> {
-	val: T;
-	static name:T = 22
-	constructor（ val : T）{ 
-		this. val = val
-	}
-	add( x: T):T{return x}
-	add: (x: T) => T
-	add: (x:T) => T = function (x:T):T{
-		 return x
-	}      
-}
-let myClass = new Xiaojiejie<number>(22)
-myClass.add(12)
-
-```
-类的静态部分,不能使用这个类型参数。抽象方法可以，
-
-### 4.泛型数组
-
-```js
-// 写法 - Array<T>
-Let arr : number[] = [1, 23, 5]
-
-Let arr : Array<number> = [1, 23, 5]
-
-// 只读数组
-Let arr : ReadonlyArray<number> = [1, 23, 5]
-arr[0] = 123
-```
-
-### 5.泛型约束
-
-简单的理解，约束参数类型的必须拥有某个属性或者方法
-```js
-function fn<T> (arg: T) : T {
-	console.log(arg.length)
-	return arg
-} 
-fn<number>(123)
-
-```
-
-```js
-interface Length {
-	length: number
-}
-function fn<T extends Length> (arg: T) : T {
-	console.log(arg.length)
-	return arg
-} 
-fn (123)
-fn (`abc`)
-fn({length: 3, ……})
-
-```
-
-关键字extends, 实际上与继承同义，类型变量继承被约束类型的所有成员
-
-多个类型参数之间也可以互相约束：
-```js
-
-function fn<T extends U, U>(a: T, b: U): T {
-for (let key in b) {
-	a[key] = (<T>b)[key];
-}
-return a;
-}
-let a = { a: 1, b: 2, c: 3, d: 4 };
-fn(a, { b: 10, d: 20 });
-
-```
-泛型 -- 默认类型
-
-```js
-interface Length<T> {
-	length: T
-}
-let a:length<string> = {
-	length:  `wwwww`
-}
-
-interface Length<T = string> {
-	length: T
-}
-let a:length= {
-	length:  `wwwww`
-}
-
-```
-
-
-类型别名
-
-类型别名用来给一个类型起个新名字, 关键字 type
-
-```js
-type newName = T1  | T2 | ……
-
-// string 类型别名
-type myString = string
-
-//  函数类型别名
-type myFn = () => number
-
-//  联合类型别名
-type myLianhe = myString | myFn 
-
-```
-
-
-

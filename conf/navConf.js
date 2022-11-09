@@ -28,13 +28,13 @@ module.exports = [
     }, {
       text: '服务端知识',
       items: [
-        { text: 'Docker', link: '/backend/docker/'},
         { text: 'NodeJS', link: '/backend/nodejs/'},
         { text: 'Koa', link: '/backend/koa/'},
         { text: 'Mysql', link: '/backend/mysql/'},
         { text: 'MongoDB', link: '/backend/mongodb/'},
         { text: 'Nginx', link: '/backend/nginx/'},
         { text: 'HTTP协议', link: '/backend/http/'},
+        { text: '官网知识推荐', link: '/backend/docker/'},
       ]
     }, {
         text: '其他杂谈',

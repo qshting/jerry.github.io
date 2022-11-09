@@ -3,10 +3,10 @@ title: 一、基础知识
 ---
 
 初体验：安装和运行ts
-```
-$ npm install -g typescript
-$ tsc -v 
-$ tsc helloworld.ts
+```bash
+npm install -g typescript
+tsc -v 
+tsc helloworld.ts
 ```
 
 ## 一.类型声明

@@ -280,41 +280,71 @@ static关键字表示定义静态方法，实例方法写在constructor外面，
 ## 11.Symbol属性
 ## 12.Generator生成器
 ## 13.Promise 对象
-## 14.Decorator 装饰器
 
-## 15.Module语法
+## 14.Module模块系统
 
-```
-1）AMD 和 CMD
-require.js遵循AMD规范，SeaJS遵循CMD规范
-
-2）CommonJS
-CommonJS是服务端模块的规范，NodeJS采用了这个规范。 CommonJS规范同步加载模块，也就是：只有加载完成，才能执行后面的操作。
-```
-
-3）ES6模块化：export和import
+- 1. AMD 和 CMD(require.js遵循AMD规范，SeaJS遵循CMD规范)
+- 2. CommonJS: 是服务端模块的规范，NodeJS采用了这个规范。 CommonJS规范同步加载模块，也就是：只有加载完成，才能执行后面的操作。
+- 3. ES6模块化：import和export
 
 **模块将代码分割为可重用的单元，模块中的（类、方法、变量）可以供外部使用，或只在模块内使用。**
 
-a）export default命令，为模块指定默认输出
+(1) ES6模块化的导入和导出
 ```js
+export let a = 1  // 单独导出
+export { b, c }   // 批量导出 
+
+export interface P {     // 导出接口 
+     x: number;
+ }
+export function fn() {}  // 导出函数 
+ 
+// 导出时起别名
+export { fn as G }
+
+// 引入外部模块，再重新导出 
+export { str as hello } from './b'
+
+// 默认导出，无需函数名 
 export default function () {
-  console.log('foo');
-}
-
+    console.log("I'm default")
+} 
 ```
-import命令可以为该匿名函数指定任意名字，不需要知道原模块输出的函数名。
-```js
-import { marketing } from '../../../assets/js/api/stdmis'
-
-```
-
-b）import或export 可以使用as关键字，将输入的变量重命名
 
 ```js
-export { default as misTable } from '@/components/mis_table'
+import { a, b, c } from './a'; // 批量导入 
+import { P } from './a';       // 导入接口 
+import { f as F } from './a';  // 导入时起别名 
+import * as All from './a';    // 导入模块中的所有成员，绑定在 All 上 
+import myFunction from './a';  // 不加{}，导入默认
 ```
-## 16.ES6语法扩展
+
+(2) commonjs导入和导出(node环境下)
+```js
+// 整体导出 
+let a = {
+    // ...
+} 
+module.exports = a 
+```
+
+```js
+// 导出多个变量 
+exports === module.exports 
+module.exports = {} 
+exports.c = 3 
+exports.d = 4 
+```
+
+```js
+// 导入 
+let c1 = require('./a.node') 
+let c2 = require('./b.node') 
+let c3 = require('../es6/a') 
+import c4 = require('../es6/d')
+```
+
+## 15.ES6语法扩展
 ### 1)字符串扩展
 - includes()：  返回布尔值，是否找到了参数字符串
 - startsWith()：返回布尔值，参数字符串是否在原字符串的头部

@@ -9,6 +9,29 @@ tsc -v
 tsc helloworld.ts
 ```
 
+**类型小知识：**
+
+- 类型：不同类型变量占据的内存大小不同，和可以对它可做的操作不同，
+- 1.类型安全：保证对什么类型只做什么操作
+- 2.类型检查：而保证类型安全的方式就是类型检查。
+
+动态类型与静态类型:
+
+- 1.动态类型检查：写代码很灵活，在源码中不保留类型信息，类型检查可以在运行时做
+- 2.静态类型检查：则是在源码中保留类型信息，声明变量要指定类型，对变量做的操作要和类型匹配，会有专门的编译器在编译期间做检查
+
+升级版类型系统：
+- 1.简单类型系统：变量、函数、类等都可以声明类型
+- 2.支持泛型的类型系统：(也叫类型参数,可以代表任何一种类型)会变化的类型声明，在调用的时候再确定类型
+- 3.支持类型编程的类型系统：对传入的类型参数(泛型)做各种逻辑运算，产生新的类型，这就是类型编程
+
+```js
+// 例：类型运算
+function getpropValue<T extends object,Key extends keyof T>(obj:T, key:Key):T[Key]{
+    return obj[key]
+}
+```
+
 ## 一.类型声明
 
 类型注解, 就是类型声明
@@ -53,6 +76,7 @@ num = undefined
 num = null
 ```
 
+**(3)never** 不应该存在的状态
 ```js
 // never
 永远不会有返回值的类型
@@ -101,7 +125,24 @@ let arr3: any[] = [1, "2", true]; //任意类型的数组
 //写法2：Array<类型>
 let arr2: Array<number> = [1, 2]       // 泛型语法
 let arr2: Array<number | string> = [1, 2, '4']  // 联合类型
+```
 
+```js
+// 用接口表示数组
+interface NumberArray {
+    [index: number]: number
+}
+let fibonacci: NumberArray = [1, 1, 2, 3, 5]
+
+// 类数组(:IArguments 是内置对象定义的)
+function Arr(...args:any): void {
+    console.log(arguments)
+    let arr:IArguments = arguments
+}
+Arr(111, 222, 333)
+```
+
+```js
 // Tuple 元组
 一种特殊的数组,它限定了元素的类型和个数
 如果一个方法需要返回多个值，可以把这多个值作为元组返回，而不需要创建额外的类来表示
@@ -141,6 +182,7 @@ enum Role {
     Owner,
     Guest
 }
+// 默认就是从0开始的，可以初始化为 1
 console.log(Role.Reporter)
 console.log(Role)
 
@@ -217,18 +259,22 @@ xiaoman({age: 18,height: 180,sex: 'male'});
 ```js
 let strLength: number = (someValue as string).length
 let strLength: number = (<string>someValue).length
-
-
+```
+    
+```js
+// 可以使用类型断言来推断它传入的是A接口的值
 interface A {
     run: string
 }    
 interface B {
     build: string
 }
-const fn = (type: A | B): string => {
-    return (type as A).run
+const fn = (typeVal: A | B): string => {
+    return (typeVal as A).run
 }
-// 可以使用类型断言来推断他传入的是A接口的值
+
+// any临时断言（访问任何属性都是允许的）
+(window as any).abc = 123
 ```
 
 2.非空断言
@@ -283,20 +329,19 @@ promise().then(res=>{
 
 ### 4.类型别名
 
-type 关键字（可以给一个类型定义一个名字）多用于符合类型
-定义类型别名,定义函数别名, 定义联合类型别名,定义值的别名
+- type 关键字（可以给一个类型定义一个名字）多用于符合类型
+- 定义类型别名,定义函数别名, 定义联合类型别名,定义值的别名
 
 ```js
 type str = string
 let s:str = "我是小满"
 
-
 type cb = () => string
 let fn: cb = () => "我是小满"
  
-type str = string | number
-let s1: str = 123
-let s2: str = '123'
+type strNum = string | number
+let s1: strNum = 123
+let s2: strNum = '123'
 
 type value = boolean | 0 | '213'
 let s:value = true
@@ -355,7 +400,7 @@ console.log(Person === Person2)
 ### 2.类的继承  extends、super
 
 **在ts中**，我们可以通过 extends 关键字来实现继承，是类与类的层次模型(一个类只能继承一个父类)
-```
+```js
 // 基类  /  超(父)类
 class Person {
     public name: string
@@ -385,14 +430,13 @@ s.work()
 ### 3.类的修饰符
 
 类的修饰符:控制类成员的可访问性
-```
-public:    公有, 在类、子类、类外部都可以访问
-protected: 保护, 在类、子类里可以, 在类的外部无法访问
-private:   私有, 在类里面可以访问, 在子类和类的外部无法访问
-readonly:  只读, 在声明时或构造函数里被初始化
+
+- public:    公有, 在类、子类、类外部都可以访问
+- protected: 保护, 在类、子类里可以, 在类的外部无法访问
+- private:   私有, 在类里面可以访问, 在子类和类的外部无法访问
+- readonly:  只读, 在声明时或构造函数里被初始化
 
 在子类中通过super调用父类原型的属性和方法时，也只能够访问到父类的public和protected方法，否则会报错
-```
 
 ```js
 class Animal {
@@ -408,7 +452,7 @@ class Animal {
 
 TS 中也可以对一个属性时用 get 和 set 方法对一个属性内部的获取和赋值进行拦截
 
-```
+```js
 let passcode = 'secret passcode'
 
 class Employee {
@@ -511,3 +555,67 @@ const mao : Mao = new Mao(‘喵喵’)
 mao.eat()
 
 ```
+
+
+## 四.其他部分
+
+### 1. tsconfig.json配置文件
+
+[官网配置](https://www.tslang.cn/docs/handbook/tsconfig-json.html)
+
+[tsconfig.json配置文件-范例](https://xiaoman.blog.csdn.net/article/details/122525099)
+
+### 2. namespace命名空间
+
+- 使用namespace命名空间,防止全局污染
+- 内部模块，主要用于组织代码，避免命名冲突。
+- 命名空间内的类默认私有
+- 通过 namespace 关键字定义；通过 export 暴露
+
+实际中，ts写的项目，可能用不上namespace, 毕竟export就可以产生模块, 模块天然就有隔离分组作用.
+```js
+namespace Shape { 
+    const pi = Math.PI 
+    export function cricle(r: number) { 
+       return pi * r ** 2 
+    } 
+}
+```
+
+```js
+// 2种引入方式
+<reference path="xxx.ts" />  // reference导入
+import {Food} from './xxx';  // 使用import导入
+```
+
+
+### 3. 三斜线指令
+
+三斜线指令是包含单个XML标签的单行注释， 注释的内容会做为编译器指令使用。
+```js
+/// <reference path="..." />
+
+// 指令是三斜线指令中最常见的一种。 它用于声明文件间的 依赖。
+// 三斜线引用告诉编译器在编译过程中要引入的额外的文件
+```
+
+### 4. 声明文件d.ts
+
+当使用第三方库时，我们需要引用它的声明文件，才能获得对应的代码补全、接口提示等功能。
+
+关于这些第三发的声明文件包都收录到了 npm (https://www.npmjs.com/~types?activeTab=packages)
+
+```js
+declare var 声明全局变量
+declare function 声明全局方法
+declare class 声明全局类
+declare enum 声明全局枚举类型
+declare namespace 声明（含有子属性的）全局对象
+interface 和 type 声明全局类型
+/// <reference /> 三斜线指令
+```
+
+例：当安装一个express，import后报错了，出现红波浪线，解决方式：
+ 
+- 方式1：去下载他的声明文件 npm install @types/express -D
+- 方式2：创建一个文件.d.ts去声明， declare const express: ()=> any

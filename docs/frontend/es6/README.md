@@ -179,15 +179,16 @@ let newItem = {
 ES6 提供了新的数据结构 Set。它类似于数组，但是成员的值都是唯一的，没有重复的值。
 Set 本身是一个构造函数，用来生成 Set 数据结构。
 
-```
 01- 数组去重
+
 先去重，再用结构赋值，转换为数组格式
+```js
 let array = [1,2,3,3,3,5]
 let nArray = [...new Set(array)]  // [1,2,3,5]
 ```
 
-```
 02- 实现并集、交集和差集
+```js
 let a = new Set([1, 2, 3]);
 let b = new Set([4, 3, 2]);
 
@@ -207,15 +208,11 @@ console.log(...difference)
 
 ## 7.Async/Await
 
+- 1.async函数返回一个 Promise 对象
+- 2.async函数的return返回值，会成为then回调的参数
+- 3.async函数内部抛出错误，会返回reject状态。被catch方法接收(await最好放在try...catch代码块中)
 
-```
-1.async函数返回一个 Promise 对象
-2.async函数的return返回值，会成为then回调的参数
-3.async函数内部抛出错误，会返回reject状态。被catch方法接收(await最好放在try...catch代码块中)
-```
-
-
-```
+```js
 async function myFunction() {
       try {
         await somethingThatReturnsAPromise()
@@ -230,7 +227,7 @@ myFunction().then(function(data){
 ```
 
 多个await命令，可同时触发
-```
+```js
 // 写法一
 let [foo, bar] = await Promise.all([getFoo(), getBar()])
 
@@ -246,7 +243,7 @@ let bar = await barPromise
 1）传统方式，通过构造函数定义一个类
 
 2）ES6引入了Class，作为对象的模板
-```
+```js
 class Person{
     constructor(myName, myAge){
         this.name = myName;
@@ -266,16 +263,16 @@ p.say();      //调用实例方法
 Person.run(); //调用静态方法
 ```
 
-```
 01- constructor方法是类的默认方法，通过new命令生成对象实例时，自动调用该方法。
+
 一个类必须有constructor方法，如果没有显式定义，一个空的constructor方法会被默认添加。
  
 02- 类里面定义方法
+
 static关键字表示定义静态方法，实例方法写在constructor外面，默认是添加到原型上面的
-```
 
 
-## 9.Iterator（遍历器
+## 9.Iterator 遍历器
 ## 10.Reflect对象
 ## 11.Symbol属性
 ## 12.Generator生成器

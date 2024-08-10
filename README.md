@@ -12,3 +12,6 @@ yarn run docs:dev
 ```
 
 ## 修改
+
+export NODE_OPTIONS="--openssl-legacy-provider"
+yarn run docs:dev

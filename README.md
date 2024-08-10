@@ -15,3 +15,5 @@ yarn run docs:dev
 
 export NODE_OPTIONS="--openssl-legacy-provider"
 yarn run docs:dev
+
+发布时的操作

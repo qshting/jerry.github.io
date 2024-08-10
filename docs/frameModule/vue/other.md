@@ -8,22 +8,24 @@ title: 二、进阶常识
 **1.全局注册与局部注册**
 
 ```js
-Vue.component('my-component-name', {/* ... */})  // 不推荐
+import CommonA from '../CommonA'
+Vue.component('CommonA', {/* ... */})
 ```
 
 ```js
+import ComponentA from '../'
+import ComponentB from '../'
 components: { 
     ComponentA, ComponentB
 }
 ```
 
-
-
-
 **2. props与$emits**
 
-- 单向数据流,所有的 prop 都使得其父子 prop 之间形成了一个单向下行绑定(建议在子组件内部不应该改变 prop)
-- 子组件$emit通知父元素，自身不做任何操作; 父元素接受参数，进行操作
+- data 的数据是自己的 → 随便改
+- prop 的数据是外部的 → 不能直接改，要遵循 单向数据流
+- 单向数据流：父级 prop 的数据更新，会向下流动，影响子组件。这个数据流动是单向的。
+- 子组件$emit通知父元素，自身不做任何操作; 父元素监听消息，接受参数，并处理函数
 
 ```html
 <misTable 
@@ -35,10 +37,11 @@ components: {
 
 ```js
 props: {
-  tableList: {
+    // 获取父数据
+    tableList: {
         type: Array,
         default: () => { return [] } 
-    }
+    } 
 }
 methods: {
     // 通知父元素
@@ -48,7 +51,249 @@ methods: {
 }
 ```
 
-**3.插槽**
+
+### 2.子组件的三种调用方式
+
+
+**1.标签调用，通过子组件名**
+
+- 参数props 和 事件$emits
+- v-model或者.sync显式控制组件显示隐藏
+
+```html
+  // 父组件
+  <myDialog :title="title" :visible.sync="visible"></myDialog> 
+  <button @click="openDialog"></button>
+```
+
+```html
+  // 子组件
+<script>
+  export default {
+    name: 'myDialog',
+    props: {
+      title: String,
+      visible: {
+        type: Boolean,
+        default: false
+      }
+    },
+    methods: {
+       // 传递关闭事件
+      close() {
+        this.$emit('update:visible', false) 
+      },
+      // 任意空白处，关闭事件
+      closeModal(e) {
+        if (this.visible) {
+          document.querySelector('.dialog').contains(e.target) ? '' : this.close(); 
+          // 判断点击的落点在不在dialog对话框内，如果在对话框外就调用this.close()方法关闭对话框
+        }
+      }
+    }
+  }
+</script>
+```
+
+**2.方法调用，构造组件**
+
+1) 没有props，
+2) v2中，子组件js的vue.extend构建组件； 挂载使用Vue.prototype.$message = Message
+3) 主main里调用一下Vue.use()方法
+
+```js
+// 01-Notice.vue子组件
+<template>
+  <div class="notice">
+    <div class="content">{{ content }}</div>
+  </div>
+</template>
+
+<script>
+  export default {
+    name: 'notice',
+    data () {
+      return {
+        visible: false,
+        content: '',
+        duration: 3000
+      }
+    },
+    methods: {
+      setTimer() {
+        setTimeout(() => {
+          this.close() // 3000ms之后调用关闭方法
+        }, this.duration)
+      },
+      close() {
+        this.visible = false
+        setTimeout(() => {
+          this.$destroy(true)
+          // 从DOM里将这个组件移除
+          this.$el.parentNode.removeChild(this.$el) 
+        }, 500)
+      }
+    },
+    mounted() {
+      this.setTimer() // 挂载的时候就开始计时，3000ms后消失
+    }
+  }
+</script>
+
+```
+
+
+```js
+// 02-Notice.js处理
+import Vue from 'vue'
+
+const NoticeConstructor = Vue.extend(require('./Notice.vue').default) 
+// 直接将Vue组件作为Vue.extend的参数
+
+let nId = 1
+
+const Notice = (content) => {
+  let id = 'notice-' + nId++
+
+  const NoticeInstance = new NoticeConstructor({
+    data: {
+      content: content
+    }
+  }) // 实例化一个带有content内容的Notice
+
+  NoticeInstance.id = id
+  NoticeInstance.vm = NoticeInstance.$mount() // 挂载但是并未插入dom，是一个完整的Vue实例
+  NoticeInstance.vm.visible = true
+  NoticeInstance.dom = NoticeInstance.vm.$el
+  document.body.appendChild(NoticeInstance.dom) // 将dom插入body
+  NoticeInstance.dom.style.zIndex = nId + 1001 // 后插入的Notice组件z-index加一，保证能盖在之前的上面
+  return NoticeInstance.vm
+}
+
+// 挂载
+export default {
+  install: Vue => {
+    Vue.prototype.$notice = Notice // 将Notice组件暴露出去，并挂载在Vue的prototype上
+  }
+}
+
+```
+
+
+```js
+// 03-main.js
+import Notice from 'notice/index.js'
+
+Vue.use(Notice)
+```
+
+v3中： Vue.prototype 替换为 config.globalProperties
+
+**3.指令调用**
+
+子组件，添加install方法(插件方法); main.js使用vue.use(**name)
+
+
+扩展阅读: [组件的三种调用方式](https://juejin.cn/post/6844903545410420749#heading-1)
+
+### 3.组件通信
+
+- 父子关系 → props & $emit
+- 非父子关系 → provide & inject 或 eventbus
+- 通用方案 → vuex
+
+**1. props / $emit**
+```js
+// 混合写法
+<script>
+export default {
+  props: {
+    msg1: {
+      type: String,
+      default: '',
+    },
+  },
+  setup(props) {
+    console.log(props)
+  },
+}
+</script>
+```
+
+```js
+// 纯 Vue3 写法(语法糖)
+<script setup>
+    const props = defineProps({
+        msg2:{
+            type:String,
+            default:""
+        }
+    })
+</script>
+```
+
+**2. provide / inject**
+
+provide：可以让我们指定想要提供给后代组件的数据或
+
+inject：在任何后代组件中接收想要添加在这个组件上的数据，不管组件嵌套多深都可以直接拿来用
+```js
+// Parent.vue
+<script setup>
+    import { provide } from "vue"
+    provide("name", "沐华")
+</script>
+
+// Child.vue
+<script setup>
+    import { inject } from "vue"
+    const name = inject("name")
+    console.log(name)
+</script>
+```
+
+**2. $children / $parent**
+
+节制地使用 $parent 和 $children - 它们的主要目的是作为访问组件的应急方法。
+
+更推荐用 props 和 events 实现父子组件通信
+
+- $children：获取到一个包含所有子组件(不包含孙子组件)的 VueComponent 对象数组，可以直接拿到子组件中所有数据和方法等
+- $parent：获取到一个父节点的 VueComponent 对象，同样包含父节点中所有数据和方法等
+
+
+**3. expose / ref**
+
+ref：如果在普通的 DOM 元素上使用，引用指向的就是 DOM 元素；
+
+如果用在子组件上，引用就指向组件实例，可以通过实例直接调用组件的方法或访问数据
+
+```js
+// Parent.vue  注意 ref="comp"
+<template>
+<child ref="comp"></child>
+</template>
+
+// 获取子组件对外暴露的属性和方法
+<script setup>
+    import child from "./child.vue"
+    import { ref } from "vue"
+    const comp = ref(null)
+    const handlerClick = () => {
+        console.log(comp.value.childName) // 获取子组件对外暴露的属性
+        comp.value.someMethod() // 调用子组件对外暴露的方法
+    }
+</script>
+```
+
+
+**5. mitt**
+
+Vue3 中没有了 EventBus 跨组件通信，但是现在有了一个替代的方案 mitt.js，原理还是 EventBus
+
+
+
+### 4.组件插槽
 
 - 1）具名插槽，slot根据不同的name名称分发内容（多个使用情况时）
 - 2）作用域插槽，是一种特殊类型的插槽，用作一个 (能被传递数据的) 可重用模板，让插槽内容能够访问子组件中才有的数据。
@@ -93,7 +338,8 @@ methods: {
 </span>
 ```
 
-**4.动态组件 && 异步组件**
+
+### 5.动态组件 && 异步组件
 1) 动态组件：使用:is在不同组件之间进行动态切换：
 
 让多个组件使用同一个挂载点，并动态切换，这就是动态组件。通过 Vue 的 component 标签元素加一个特殊的 is 特性来实现
@@ -125,130 +371,37 @@ new Vue({
 })
 ```
 
-### 2.子组件的三种调用方式
+## [二].指令 directive
+```html
+<p v-highlight="'yellow'">以亮黄色高亮显示此文本</p>
+```
 
-
-**1.通过子组件名，标签调用**，参数props 和 $emits
-
-**2.构造组件，js代码调用**
-
-1) 没有props，
-2) v2中，子组件js的vue.extend构建组件； 挂载使用Vue.prototype.$message = Message
-3) 主main里调用一下Vue.use()方法
 ```js
-import Vue from 'vue'
-const NoticeConstructor = Vue.extend(require('./Notice.vue').default)
-
-// ...
-
-// 挂载
+// 1.创建文件并导出配置
 export default {
-  install: Vue => {
-    Vue.prototype.$notice = Notice
+  install(app){
+    app.directive('自定义指令名',{ //在创建自定义名称时不要带v-,使用时再携带
+      mounted(el,binding){
+        // el 为携带自定义指令的dom节点
+        // binding 为指令后携带的参数通过.value取出
+      }
+    })
   }
 }
-```
-v3中： Vue.prototype 替换为 config.globalProperties
 
-**3.指令调用**
+// 2.main.js文件中注册
+import direction from './directives'
+createApp(App).use(directive).mount('#app')
 
-子组件，添加install方法(插件方法); main.js使用vue.use(**name)
-
-
-扩展阅读: [组件的三种调用方式](https://juejin.cn/post/6844903545410420749#heading-1)
-
-### 3.组件多种通信
-
-**1. props / $emit**
-```js
-// 混合写法
-<script>
-export default {
-  props: {
-    msg1: {
-      type: String,
-      default: '',
-    },
-  },
-  setup(props) {
-    console.log(props)
-  },
-}
-</script>
 ```
 
-```js
-// 纯 Vue3 写法(语法糖)
-<script setup>
-    const props = defineProps({
-        msg2:{
-            type:String,
-            default:""
-        }
-    })
-</script>
-```
+扩展阅读：[Vue3自定义指令-10个常见的实用指令](https://juejin.cn/post/6968996649515515917)
 
-**2. $children / $parent**
-
-节制地使用 $parent 和 $children - 它们的主要目的是作为访问组件的应急方法。
-
-更推荐用 props 和 events 实现父子组件通信
-
-- $children：获取到一个包含所有子组件(不包含孙子组件)的 VueComponent 对象数组，可以直接拿到子组件中所有数据和方法等
-- $parent：获取到一个父节点的 VueComponent 对象，同样包含父节点中所有数据和方法等
+[指令批量注册了](https://juejin.cn/post/7049233225708732429)
 
 
-**3. expose / ref**
 
-ref：如果在普通的 DOM 元素上使用，引用指向的就是 DOM 元素；
-
-如果用在子组件上，引用就指向组件实例，可以通过实例直接调用组件的方法或访问数据
-
-```js
-// Parent.vue  注意 ref="comp"
-<template>
-<child ref="comp"></child>
-</template>
-
-// 获取子组件对外暴露的属性和方法
-<script setup>
-    import child from "./child.vue"
-    import { ref } from "vue"
-    const comp = ref(null)
-    const handlerClick = () => {
-        console.log(comp.value.childName) // 获取子组件对外暴露的属性
-        comp.value.someMethod() // 调用子组件对外暴露的方法
-    }
-</script>
-```
-
-**4. provide / inject**
-
-provide：可以让我们指定想要提供给后代组件的数据或
-
-inject：在任何后代组件中接收想要添加在这个组件上的数据，不管组件嵌套多深都可以直接拿来用
-```js
-// Parent.vue
-<script setup>
-    import { provide } from "vue"
-    provide("name", "沐华")
-</script>
-
-// Child.vue
-<script setup>
-    import { inject } from "vue"
-    const name = inject("name")
-    console.log(name)
-</script>
-```
-
-**5. mitt**
-
-Vue3 中没有了 EventBus 跨组件通信，但是现在有了一个替代的方案 mitt.js，原理还是 EventBus
-
-
-## [二].路由 router
+## [三].路由 router
 
 - router-link 可以在不重新加载页面的情况下更改 URL
 - router-view 显示与 url 对应的组件
@@ -431,40 +584,12 @@ router.beforeEach((to, from, next) => {
 
 
 
-## [三].状态管理
+## [四].状态管理
 
 ### 1.Vuex
 
 
 ### 2.Pinia
-
-## [四].自定义指令 directive
-```html
-<p v-highlight="'yellow'">以亮黄色高亮显示此文本</p>
-```
-
-```js
-// 1.创建文件并导出配置
-export default {
-  install(app){
-    app.directive('自定义指令名',{ //在创建自定义名称时不要带v-,使用时再携带
-      mounted(el,binding){
-        // el 为携带自定义指令的dom节点
-        // binding 为指令后携带的参数通过.value取出
-      }
-    })
-  }
-}
-
-// 2.main.js文件中注册
-import direction from './directives'
-createApp(App).use(directive).mount('#app')
-
-```
-
-扩展阅读：[Vue3自定义指令-10个常见的实用指令](https://juejin.cn/post/6968996649515515917)
-
-[指令批量注册了](https://juejin.cn/post/7049233225708732429)
 
 
 ## [五].axios请求配置

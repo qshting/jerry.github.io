@@ -6,6 +6,8 @@ title: 一、基础部分
 
 Vue生命周期总共分为8个阶段：创建create--> 挂载mount --> 更新update --> 销毁destroy
 
+![image-20200615123001045](./assets/11.png)
+
 **(1) 下表包含如何在 setup () 内部调用生命周期钩子：**
 
 | 选项式API  | setup  | 描述                                         |
@@ -43,37 +45,62 @@ render:function(createElement,context){
 }
 ```
 
-## 02.computed 与 watch
+## 03.computed 与 watch
 **(1)computed:**
 
 在计算属性中,可以完成各种复杂的逻辑,包含运算,函数调用,最终返回一个结果就可以
 - 减少模板中计算逻辑
-- 数据缓存，所依赖的数据发生变化时,它才会重新取值
+- 数据缓存[提升性能]，所依赖的数据发生变化时,它才会重新取值
 - 依赖其他计算属性,不仅可以依赖当前的vue实例的数据,还可以依赖其他实例的数据
 - 可以文本插值,可以动态设置元素的样式
 - 多数情况下,只用默认的getter方法来读取一个计算属性,可使用默认的写法.
 
 ```js
 computed: {
-    reversedMessage() {
-        return this.message.split('').reverse().join('')
+    // 不传参
+    getPrice() {
+         return this.message.split('').reverse().join('')
     },
-    // 加上依赖数据参数
-    TimeConversion() {
-        return (date)=>{
-            return dataFormat(date)
+    // 传参
+    getNum() {
+        return function(ticketId) {
+            return ticketId
         }
     }
+}
+ 
+```
+
+```js
+computed: {
+    // 默认计算属性：只能获取不能设置get，要设置需要写完整写法set
+    // 完整写法 = get + set
+    // 全选及反全选
+    isAll: {
+        get () {
+            return this.fruitList.every(item => item.isChecked)
+        },
+        set (value) {
+            // 基于拿到的布尔值，要让所有的小选框 同步状态
+            this.fruitList.forEach(item => item.isChecked = value)
+        }
+    },
 }
 ```
 
 ```js
 setup() {
-    // 或者可以绑定在person对象上
-    // person.fullName = computed(()=>{
-    let fullName = computed(()=>{
+    // 不带参
+    let fullName = computed(() => {
         return person.firstName + person.lastName
     })
+
+    // 带参
+    let hasParams = computed(() => {
+        return (value: string) => {
+            return value;
+        };
+    });
 }
 ```
 
@@ -92,9 +119,23 @@ setup() {
 watch:{
     //监控list，发生变化就执行
     list:function(newVal, oldVal){
+        console.log('变化了', newValue)
         store.save("new-class",this.list);
     }
 },
+```
+
+```js
+// 例子：边输入边翻译（或边输入边查询地区）
+watch: {
+    'newWords' (newValue) {
+        // 防抖: 延迟执行 → 干啥事先等一等，延迟一会，一段时间内没有再次触发，才执行
+        clearTimeout(this.timer)
+        this.timer = setTimeout(async () => {
+            this.queryWord(newValue)
+        }, 300)
+    }
+}
 ```
 
 **深度监控:**
@@ -102,10 +143,11 @@ watch:{
 ```js
 watch:{
     list:{
-        handler:function(){
+        deep: true,      // 深度监视
+        immediate: true, // 是否立刻执行，一进入页面handler就立刻执行一次
+        handler:function(newValue){
             store.save("miaov-new-class",this.list);
         },
-        deep:true
     }
 },
 ```
@@ -121,7 +163,7 @@ setup() {
 ```
 扩充了解：[vue3中你不知道的watch和watchEffect 侦听器](https://juejin.cn/post/7032658568272691231)
 
-## 03.Filter 数据过滤
+## 04.Filter 数据过滤
 
 **1.注册全局Filter**
 
@@ -169,7 +211,7 @@ let sumsVal = this.$options.filters.formatRate(sumsArr, '')
 
 (3)vue3删除了filter功能，用方法调用或计算属性替换过滤器
 
-## 04.mixins 混入
+## 05.mixins 混入
 
 混入 (mixins)定义了一部分可复用的方法或者计算属性
 
@@ -185,7 +227,7 @@ import { mixin } from 'common/mixin'
 mixins: [ Mixin ]
 ```
 
-## 05.修饰符的使用
+## 06.修饰符的使用
 
 **1.事件修饰符**
 
@@ -213,7 +255,7 @@ mixins: [ Mixin ]
 <input type="number" v-model.number="message">  // 输入转换为Number型
 ```
 
-## 06.其他基础指令
+## 07.其他基础指令
 
 **1.v-text**: 更新元素的textContent,可代替{{}}
 ```html
@@ -241,7 +283,7 @@ let message = '<div>标签</div>'
 
 **4.v-once**: 只渲染一次,随后数据改变将不再重新渲染,视为静态内容,用于优化更新性能
 
-## 07.v-class 与 v-style
+## 08.v-class 与 v-style
 
 **1.数组写法**
 ```html
@@ -263,7 +305,7 @@ let message = '<div>标签</div>'
 <div :class="classObject"></div>
 ```
 
-## 08.理解响应式原理
+## 09.理解响应式原理
 
 **1. vue2的 defineProperty**
 - vue的双向绑定不过是语法糖
@@ -307,7 +349,7 @@ new Proxy(data, {
 
 扩充了解：[实现双向绑定Proxy比defineproperty优劣](https://juejin.cn/post/6844903601416978439#heading-8)
 
-## 09.理解Virtual DOM
+## 10.理解Virtual DOM
 
 所谓虚拟DOM，就是一个JS对象，用来存储DOM树结构 [运行js本身速度是很快.但是大量操作DOM就会很慢.]
 
@@ -323,7 +365,7 @@ new Proxy(data, {
 
 ![image-20200615123001045](./assets/icon.png)
 
-## 10.理解nextTick机制
+## 11.理解nextTick机制
 
 当页面中的数据发生改变了，就会把该任务放到一个异步队列中，只有在当前任务空闲时才会进行DOM渲染，当DOM渲染完成以后，该函数就会自动执行。
 
@@ -348,7 +390,7 @@ this.showit = true
 
 扩充了解：[Vue异步更新策略及 nextTick 原理](https://juejin.cn/post/6844904169967452174)
 
-## 11.Apache配置
+## 12.Apache配置
 
 运行在服务器端的项目
 
@@ -404,17 +446,54 @@ location / {
 
 
 
-## 12.其他小tips
+## 13.vue文件执行过程
+
+在Vue项目中，文件的执行顺序通常遵循以下步骤：
+
+main.js 和 App.vue是必须的，它们是Vue项目的入口文件和根组件。
+- 1.入口文件：main.js 或 main.ts 是项目的入口点，它负责创建Vue实例并挂载到DOM元素上。
+- 2.路由配置：router/index.js 或 router.js 文件定义了Vue Router的路由配置，它告诉Vue如何根据URL切换不同的组件。
+- 3.Vuex store：store/index.js 文件设置了Vuex store，用于集中管理应用的状态。
+- 4.组件定义：各个.vue文件定义了应用的组件，这些组件在模板、脚本和样式中编写。
+- 5.资源加载：在应用启动时，浏览器会加载index.html文件，它通常会通过 script 标签引入Vue库和路由、store等代码。
+- 6.挂载应用：main.js 中的Vue实例在DOM元素准备好后被挂载，此时应用启动并开始运行。
+- 7.路由守卫：如果有的话，router.js 中的路由守卫会在路由跳转前后执行，用于处理如认证、权限检查等逻辑。
+- 8.生命周期钩子：Vue组件中的生命周期钩子函数（如created、mounted、updated等）会在组件的不同阶段被调用。
+- 9.事件监听：组件内部的事件监听器和自定义指令会在适当的时机执行。
+
+- 10.异步数据获取：如果组件需要从服务器获取数据，通常会在created或mounted钩子中进行。
+- 11.组件渲染：Vue实例会根据模板和数据渲染出DOM结构。
+- 12.响应式更新：当数据变化时，Vue会自动检测到并更新DOM。
+- 13.组件卸载：当组件不再需要时，Vue会进行清理工作，如取消事件监听器、移除DOM元素等。
+
+请注意，这个执行顺序是基于Vue CLI创建的标准Vue 3项目。如果你使用的是Vue 2或者是在特定情况下手动设置项目，步骤可能会有所不同。
+
+
+
+## 13.其他小tips
 
 1).子组件为何不能修改父组件的props
+
 因为vue是单向数据流,数据的双向绑定依赖object.defineProperty()
 
 2).this.$emit的返回值是什么?
+
 是this,如果需要返回值可以使用回调参数
 
-3).key
+3).为什么不能用index来使用key？
+
 当有相同标签名的元素切换时，需要通过 key 特性设置唯一的值来标记以让 Vue 区分它们，否则 Vue 为了效率只会替换相同标签内部的内容。
-**为什么不能用index来使用key**? 因为当dom树插入的时候,index的值会有变化,因而不准确.
+
+因为当dom树插入的时候,index的值会有变化,因而不准确.
+
+4).data为什么是一个return 函数？
+data 是一个函数
+一个组件的data 选项必须是一个函数，
+- 保证每个组件实例，维护独立的一份数据对象。
+每次创建新的组件实例，都会新执行一次 data 函数，得到一个新对象。
 
 
-测试去哦当时的时代 
+4).安装调试工具 Vue Devtools
+
+极简插件 下载工具https://chrome.zzzmh.cn/index
+通过浏览器：扩展程序（开发者模式）- 拖拽安装— 插件详情允许访问文件

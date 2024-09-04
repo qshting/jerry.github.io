@@ -25,8 +25,8 @@
     "nodejs":["","1.模块与npm包管理","2.设置npm的registry","3.http模块","4.stream","5.fs模块","6.process模块","Cookie和Session关系和区别","EventEmitter源码分析","Node Web开发ORM框架 Sequelize","Node模块系统","package.json文件详解","path.join&path.resolve","如何编写一个HTTP反向代理服务器","手把手教你发布自己的npm包","进程与子进程"]
   },
   "frameModule":{
-    "vue":["","other"],
-    "ReactNative":[""],
-    "weixin":[""]
+    "vue":["","other","other02"],
+    "ReactNative":["","react02"],
+    "weixin":["","weixin02","weixin03"]
   }
 }

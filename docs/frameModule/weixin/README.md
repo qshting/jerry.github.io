@@ -63,6 +63,24 @@ title: 一、基础部分
 - projectname 中保存的是项目名称
 - appid 中保存的是小程序的账号 ID
 
+```js
+// 范例 https://www.jianshu.com/p/ce7b45b5f9c9
+{
+ "description": "项目配置文件",
+ "packOptions": {
+  "ignore": []
+ },
+ "setting": {  //项目设置
+  "urlCheck": false, //不检查安全域名和 TLS 版本
+  "es6": true,  //启用 es6 转 es5
+  "postcss": true, //上传代码时样式自动补全
+  "minified": true,  //上传代码时自动压缩
+  "newFeature": true,  //新特征，文档中未描述
+  "autoAudits": false,
+  "checkInvalidKey": true
+ },
+ ...
+```
 
 (3) sitemap.json 文件用来配置小程序及其页面是否允许被微信索引（爬虫）
 
@@ -192,6 +210,12 @@ title: 一、基础部分
 
 ## 04. WXML 模板语法
 
+页面的组件类似于标签一样:
+
+组件详见，https://developers.weixin.qq.com/miniprogram/dev/component/
+
+语法参考，https://developers.weixin.qq.com/miniprogram/dev/reference/wxml/data.html
+
 1. 关于标签
 ```html
 <view class="container">
@@ -278,6 +302,25 @@ inputHandler(e) {
 },
 ```
 
+3. 事件处理函数，改变数据的方式
+
+```js
+Page({
+  data: {
+    text: 'init',
+  },
+  changeText: function() {
+    // 修改数据使用 setData
+    this.setData({
+      text: 'changed data'
+    })
+  }
+})
+```
+
+- setData 函数用于将数据从逻辑层发送到视图层（异步），同时改变对应的 this.data 的值（同步）。
+- 详见https://developers.weixin.qq.com/miniprogram/dev/reference/api/Page.html
+
 ## 05. WXSS 模板样式
 
 官方建议：开发微信小程序时，设计师可以用 iPhone6 作为视觉稿的标准。
@@ -342,12 +385,11 @@ inputHandler(e) {
 ## 07.网络数据请求
 
 小程序官方对数据接口的请求做出了如下两个限制：
-```js
-① 只能请求 HTTPS 类型的接口
-② 必须将接口的域名添加到信任列表中
-② 域名不能使用 IP 地址或 localhost
-④ 服务器域名一个月内最多可申请 5 次修改
-```
+
+- ① 只能请求 HTTPS 类型的接口
+- ② 必须将接口的域名添加到信任列表中
+- ② 域名不能使用 IP 地址或 localhost
+- ④ 服务器域名一个月内最多可申请 5 次修改
 
 **配置步骤：小程序管理后台 -> 开发 -> 开发设置 -> 服务器域名 -> 修改 request 合法域名**
 
@@ -372,13 +414,13 @@ inputHandler(e) {
   },
 ```
 
-## 08.页面导航
+## 08.页面路由导航
 
 1）声明式导航
 
 ```html
-<navigator url="/pages/message/msg" open-type="switchTab">导航到消息页面</navigator>
-<navigator url="/pages/info/info" open-type="navigate">导航到info页面</navigator>
+<navigator url="/pages/msg" open-type="switchTab">导航到消息页面</navigator>
+<navigator url="/pages/info" open-type="navigate">导航到info页面</navigator>
 <navigator open-type="navigateBack" delta="1">后退</navigator>
 ```
 
@@ -423,6 +465,12 @@ Page({
 })
 ```
 
+- wx.reLaunch - 可以打开任意页面（重启动）
+- wx.navigateTo - 打开新页面（保留记录）
+- wx.navigateBack - 用户按左上角返回按钮或其他按钮（页面返回）
+- wx.redirectTo - 打开页面，除了tabBar页（页面重定向）
+- wx.switchTab - 只能打开tabBar页面（Tab 切换）
+
 ## 09.页面事件
 
 1. 下拉刷新 -onPullDownRefresh
@@ -444,8 +492,9 @@ Page({
   },
 })
 ```
-下拉刷新时，loading 效果会一直显示，不会主动消失；
-调用 wx.stopPullDownRefresh() 可以停止当前页面的下拉刷新。
+
+- 下拉刷新时，loading 效果会一直显示，不会主动消失；
+- 调用 wx.stopPullDownRefresh() 可以停止当前页面的下拉刷新。
 
 2. 上拉触底 - onReachBottom
 

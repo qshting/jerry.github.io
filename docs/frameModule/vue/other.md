@@ -2,7 +2,7 @@
 title: 二、进阶常识
 ---
 
-## [一].组件 component
+## 01.组件 component
 
 ### 1.组件基础
 **1.全局注册与局部注册**
@@ -371,7 +371,7 @@ new Vue({
 })
 ```
 
-## [二].指令 directive
+## 02.指令 directive
 ```html
 <p v-highlight="'yellow'">以亮黄色高亮显示此文本</p>
 ```
@@ -401,7 +401,7 @@ createApp(App).use(directive).mount('#app')
 
 
 
-## [三].路由 router
+## 03.路由 router
 
 - router-link 可以在不重新加载页面的情况下更改 URL
 - router-view 显示与 url 对应的组件
@@ -584,7 +584,7 @@ router.beforeEach((to, from, next) => {
 
 
 
-## [四].状态管理
+## 04.状态管理
 
 ### 1.Vuex
 
@@ -592,7 +592,7 @@ router.beforeEach((to, from, next) => {
 ### 2.Pinia
 
 
-## [五].axios请求配置
+## 05.axios请求配置
 
 ### 1.简述
 axios : 基于Promise的, 用于浏览器和 nodejs服务端通信库

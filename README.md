@@ -11,6 +11,9 @@ yarn install
 yarn run docs:dev
 ```
 
+## 部署
+在 Git 中运行 deploy.sh 脚本 或 运行 npm run deploy:build
+
 ## (1)启动失败时的方案
 
 export NODE_OPTIONS="--openssl-legacy-provider"

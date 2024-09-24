@@ -17,8 +17,8 @@ tsc helloworld.ts
 
 动态类型与静态类型:
 
-- 1.动态类型检查：写代码很灵活，在源码中不保留类型信息，类型检查可以在运行时做
-- 2.静态类型检查：则是在源码中保留类型信息，声明变量要指定类型，对变量做的操作要和类型匹配，会有专门的编译器在编译期间做检查
+- 1.动态类型检查：执行期做类型检查；写代码很灵活
+- 2.静态类型检查：编译期做类型检查；则是在源码中保留类型信息
 
 升级版类型系统：
 - 1.简单类型系统：变量、函数、类等都可以声明类型
@@ -32,19 +32,21 @@ function getpropValue<T extends object,Key extends keyof T>(obj:T, key:Key):T[Ke
 }
 ```
 
-## 一.类型声明
+## 一.常用类型
 
-类型注解, 就是类型声明
+:[name]  类型注解, 就是类型声明（作用：为变量添加类型约束）
 
-Boolean \ Number \ String \ Array \ Function \ Object \ Symbol \ undefined \ null
-void \ any \ never \ 元组 \ 枚举 \ 高级类型
+- 原始类型：number/string/boolean/null/undefined/symbol
+- 对象类型：object（包括，数组、对象、函数等对象）
+- 新增类型: 联合类型、自定义类型（类型别名）、接口、元组、字面量类型、枚举、void、any 等
 
 ### 1.基础类型
 ```js
 // 原始类型
-let isDone: boolean = false
 let count: number = 10
 let name: string = 'smile'
+let isDone: boolean = false
+let val: null = null
 
 // symbol - 具有唯一的值
 let s1: symbol = Symbol()
@@ -90,10 +92,57 @@ let endless = () => {
 使用 never 避免出现新增了联合类型没有对应的实现，目的就是写出类型绝对安全的代码。
 ```
 
-### 2.接口和对象类型
+### 2.数组类型
 
-- 定义对象的方式要用关键字interface(让数据的结构满足约束的格式)
-- 或者让TypeScript 做自动类型判断或者更加精确的指示，如接口等
+对象类型：object（包括，数组、对象、函数等对象）
+
+```js
+//写法1：类型加[]
+let arr1: number[] = [1, 2, 3]; //数字类型的数组
+let arr2: string[] = ["1", "2"]; //字符串类型的数组
+let arr3: any[] = [1, "2", true]; //任意类型的数组
+
+//写法2：Array<类型>
+let arr2: Array<number> = [1, 2]       // 泛型语法
+
+// 联合类型
+let arr01: (number | string)[] = [1, 2, '4']   
+let arr02: Array<number | string> = [1, 2, '4']  
+```
+
+```js
+// 用接口表示数组
+interface NumberArray {
+    [index: number]: number
+}
+let fibonacci: NumberArray = [1, 1, 2, 3, 5]
+
+// 类数组(:IArguments 是内置对象定义的)
+function Arr(...args:any): void {
+    console.log(arguments)
+    let arr:IArguments = arguments
+}
+Arr(111, 222, 333)
+```
+
+元组（Tuple）
+
+一种特殊的数组,它限定了元素的类型和个数
+```js
+如果一个方法需要返回多个值，可以把这多个值作为元组返回，而不需要创建额外的类来表示
+let tuple: [number, string] = [0, '1']
+let tuple: [number, string] = ['good', '1']  //error
+```
+
+
+### 3.对象类型和接口
+
+当一个对象类型被多次使用时，一般会使用接口（interface）来描述对象的类型，达到复用的目的。
+
+1. 使用 interface 关键字来声明接口。
+2. 接口名称（比如，此处的 IPerson），可以是任意合法的变量名称。
+3. 声明接口后，直接使用接口名称作为变量的类型。
+4. 因为每一行只有一个属性类型，因此，属性类型后没有 ;（分号）
 
 ```js
 interface Person {
@@ -115,57 +164,57 @@ const person: Person = {
 }
 ```
 
-### 3.数组类型
+使用 extends（继承）关键字实现了接口继承
 ```js
-//写法1：类型加[]
-let arr1: number[] = [1, 2, 3]; //数字类型的数组
-let arr2: string[] = ["1", "2"]; //字符串类型的数组
-let arr3: any[] = [1, "2", true]; //任意类型的数组
-
-//写法2：Array<类型>
-let arr2: Array<number> = [1, 2]       // 泛型语法
-let arr2: Array<number | string> = [1, 2, '4']  // 联合类型
-```
-
-```js
-// 用接口表示数组
-interface NumberArray {
-    [index: number]: number
+interface Point2D {
+  x: number
+  y: number
 }
-let fibonacci: NumberArray = [1, 1, 2, 3, 5]
 
-// 类数组(:IArguments 是内置对象定义的)
-function Arr(...args:any): void {
-    console.log(arguments)
-    let arr:IArguments = arguments
+// 使用 继承 实现复用：
+interface Point3D extends Point2D {
+  z: number
 }
-Arr(111, 222, 333)
 ```
 
-```js
-// Tuple 元组
-一种特殊的数组,它限定了元素的类型和个数
-如果一个方法需要返回多个值，可以把这多个值作为元组返回，而不需要创建额外的类来表示
-let tuple: [number, string] = [0, '1']
-let tuple: [number, string] = ['good', '1']  //error
-```
+interface（接口）和 type（类型别名）的对比：
+- 相同点：都可以给对象指定类型。
+- 不同点：接口，只能为对象指定类型； 类型别名可以为任意类型指定别名
+
+
 
 ### 4.函数类型
 
-函数类型有多种声明方式，一种是类型推断，或者是直接将一个函数的类型写全
+函数的类型实际上指的是：函数参数和返回值的类型。\
+为函数指定类型的两种方式：1 单独指定参数、返回值的类型 2 同时指定参数、返回值的类型。
+
 ```js
-let add = (x: number, y: number) => x + y
-let compute: (x: number, y: number) => number
+// 1. 单独指定参数、返回值类型：
+function add(num1: number, num2: number): number {
+  return num1 + num2
+}
+
+const add = (num1: number, num2: number): number => {
+  return num1 + num2
+}
+console.log(add(3, 2))
+
+
+// 2. 同时指定参数、返回值类型：
+const add: (num1: number, num2: number) => number = (num1, num2) => {
+  return num1 + num2
+}
 ```
 
 ```js
-// 定义参数类型和返回值的类型
-interface Add {
-    (num:  number, num2: number): number
+// 函数没有返回值 ：void
+function greet(name: string): void {
+  console.log('Hello', name)
 }
 
-const fn: Add = (num: number, num2: number): number => {
-    return num + num2
+// 函数是可选参数 ?
+function mySlice(start: number, end?: number): void {
+  console.log('起始索引：', start, '结束索引：', end)
 }
 ```
 
@@ -228,6 +277,26 @@ enum Char {
 
 ```
 
+### 6.字面量类型
+
+使用场景：用来表示一组明确的可选值列表
+```js
+function changeDirection(direction: 'up' | 'down' | 'left' | 'right') {}
+changeDirection('left')
+
+```
+
+### 7.typeof 操作符
+typeof 操作符：[类型查询] 可以在类型上下文中引用变量或属性的类型。\
+场景：根据已有变量的值，获取该值的类型，来简化类型书写
+```js
+let p = { x: 1, y: 2 }
+function formatPoint(point: typeof p) {}
+formatPoint({ x: 1, y: 100 })
+
+// function formatPoint(point: { x: number; y: number }) {}
+```
+
 ## 二.高级类型
 
 ### 1.联合类型 ｜ 交叉类型
@@ -251,7 +320,19 @@ const xiaoman = (man: People & Man) => {
 xiaoman({age: 18,height: 180,sex: 'male'});
 ```
 
-### 2.类型断言
+### 2.类型推论
+
+类型注解可以省略不写，推论机制会帮助提供类型
+- 1)声明变量并初始化时 
+- 2)决定函数返回值时
+
+```js
+let age = 18
+// 初始化的地方，可以省略类型注解
+// let age:number = 18
+```
+
+### 3.类型断言
 
 表示：值as类型　或　<类型>值
 
@@ -277,6 +358,15 @@ const fn = (typeVal: A | B): string => {
 (window as any).abc = 123
 ```
 
+- 1. 使用 as 关键字实现类型断言。
+- 2. 关键字 as 后面的类型是一个具体的类型(HTMLAnchorElement 是 HTMLElement 的子类型)
+- 3. 通过类型断言，aLink 的类型变得更加具体，这样就可以访问 a 标签特有的属性或方法了。
+
+```js
+const aLink = document.getElementById('link') as HTMLAnchorElement
+// const aLink = <HTMLAnchorElement>document.getElementById('link')
+aLink.href
+```
 2.非空断言
 
 x! --- 将从x值域中排除 null 和 undefined
@@ -303,7 +393,7 @@ function myFunc(numGenerator: NumGenerator | undefined) {
 let x!: number
 ```
 
-### 3.内置对象
+### 4.内置对象
 内置对象：它们可以直接在 TS 中当做定义好了的类型。
 - ECMAScript 的内置对象：Boolean、Number、string、RegExp、Date、Error
 - DOM 和 BOM 的内置对象：Document、HTMLElement、Event、NodeList 等
@@ -327,27 +417,55 @@ promise().then(res=>{
 })
 ```
 
-### 4.类型别名
+### 5.类型别名
 
-- type 关键字（可以给一个类型定义一个名字）多用于符合类型
-- 定义类型别名,定义函数别名, 定义联合类型别名,定义值的别名
+类型别名：**[自定义类型]** 为任意类型起别名。\
+使用场景：**简化该类型的使用**，当同一类型（复杂）被多次使用时，可以通过类型别名。
+
+1. 使用 type 关键字来创建类型别名。
+2. 类型别名（比如，此处的 CustomArray），可以是任意合法的变量名称。
+3. 创建类型别名后，直接使用该类型别名作为变量的类型注解即可。
 
 ```js
-type str = string
-let s:str = "我是小满"
-
-type cb = () => string
-let fn: cb = () => "我是小满"
- 
 type strNum = string | number
 let s1: strNum = 123
 let s2: strNum = '123'
 
-type value = boolean | 0 | '213'
-let s:value = true
+type CustomArray = (number | string)[]
+let arr01:CustomArray = ['1', 'a', '2', 'b']
 ```
 
+### 6.类型兼容性
+有两种类型系统：
+- 1 Structural Type System（结构化类型系统） 
+- 2 Nominal Type System（标明类型系统）
 
+TS 采用的是结构化类型系统，也叫鸭子类型，类型检查关注的是值所具有的形状。
+- 如果两个对象具有相同的形状，则认为它们属于同一类型
+- 成员多的可以赋值给少的
+
+```js
+// 1.接口兼容性
+class Point { x: number; y: number;}
+class Point3D {x: number;y: number;z: number;}
+const p1: Point = new Point3D();
+```
+
+```js
+// 2.接口兼容性
+interface Point {x: number; y: number;}
+interface Point3D { x: number; y: number; z: number;}
+p1 = p3
+```
+
+```js
+// 3.函数之间兼容性比较复杂，
+// 需要考虑：1 参数个数 2 参数类型 3 返回值类型。
+// 对象类型：
+type F7 = () => { name: string }
+type F8 = () => { name: string; age: number }
+f7 = f8
+```
 
 
 ## 三.Class 类
@@ -362,6 +480,7 @@ class Person {
     name: string
 
     // 构造函数 - 类被初始化时,自动执行方法
+    // 作用：为类的实例属性设置初始值
     constructor(n: string) {
       this.name = n
      }

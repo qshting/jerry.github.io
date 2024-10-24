@@ -72,6 +72,7 @@ function warnUser(): void {
 
 // undefined, null
 // 是任何类型的子类型
+// null是表示一个空对象引用； 一个没有值的变量会返回 undefined
 let un: undefined = undefined
 let nu: null = null
 num = undefined
@@ -98,15 +99,14 @@ let endless = () => {
 
 ```js
 //写法1：类型加[]
-let arr1: number[] = [1, 2, 3]; //数字类型的数组
-let arr2: string[] = ["1", "2"]; //字符串类型的数组
+let arr1: string[] = ["1", "2"]; //字符串类型的数组
+let arr2: number[] = [1, 2, 3];  //数字类型的数组
 let arr3: any[] = [1, "2", true]; //任意类型的数组
+let arr4: (string | number | boolean)[] = [1, '2', true]
+
 
 //写法2：Array<类型>
-let arr2: Array<number> = [1, 2]       // 泛型语法
-
-// 联合类型
-let arr01: (number | string)[] = [1, 2, '4']   
+let arr01: Array<number> = [1, 2]       // 泛型语法
 let arr02: Array<number | string> = [1, 2, '4']  
 ```
 
@@ -180,6 +180,7 @@ interface Point3D extends Point2D {
 interface（接口）和 type（类型别名）的对比：
 - 相同点：都可以给对象指定类型。
 - 不同点：接口，只能为对象指定类型； 类型别名可以为任意类型指定别名
+- type 能使用in关键字生成映射类型，但 interface 不行
 
 
 
@@ -204,6 +205,12 @@ console.log(add(3, 2))
 const add: (num1: number, num2: number) => number = (num1, num2) => {
   return num1 + num2
 }
+
+// 3.使用type定义一个别名（推荐最佳）
+type AddFn = (num1: number, num2: number) => number
+const add02: AddFn = (num1, num2) => {
+  return num1 + num2
+}
 ```
 
 ```js
@@ -216,6 +223,17 @@ function greet(name: string): void {
 function mySlice(start: number, end?: number): void {
   console.log('起始索引：', start, '结束索引：', end)
 }
+
+// 可优化
+type greetfn = (name: string) => void;
+const greet: greetfn = (name) => {
+  console.log('Hello', name);
+};
+type mySlicefn = (start: number, end?: number) => void;
+const mySlice: mySlicefn = (start, end) => {
+  console.log('起始索引：', start, '结束索引：', end);
+};
+
 ```
 
 ### 5.枚举类型
@@ -320,7 +338,7 @@ const xiaoman = (man: People & Man) => {
 xiaoman({age: 18,height: 180,sex: 'male'});
 ```
 
-### 2.类型推论
+### 2.类型推断
 
 类型注解可以省略不写，推论机制会帮助提供类型
 - 1)声明变量并初始化时 
@@ -364,9 +382,13 @@ const fn = (typeVal: A | B): string => {
 
 ```js
 const aLink = document.getElementById('link') as HTMLAnchorElement
-// const aLink = <HTMLAnchorElement>document.getElementById('link')
 aLink.href
+
+// 如何获取 HTMLAnchorElement 这个具体标签类型
+// 首先根据鼠标提示，获取 HTMLElement，再进入提示文件lib.dom.d.ts， 
+// 查找 HTMLElementTagNameMap，可以获取具体类型
 ```
+
 2.非空断言
 
 x! --- 将从x值域中排除 null 和 undefined
@@ -723,6 +745,26 @@ import {Food} from './xxx';  // 使用import导入
 当使用第三方库时，我们需要引用它的声明文件，才能获得对应的代码补全、接口提示等功能。
 
 关于这些第三发的声明文件包都收录到了 npm (https://www.npmjs.com/~types?activeTab=packages)
+
+- .d.ts 是 declaration（类型声明文件）
+- 类型声明文件 为JS 提供类型信息
+
+**1. 使用已有的类型声明文件:**
+
+1 内置类型声明文件：\
+TS 为 JS运行时可用的所有标准化内置 API 都提供了声明文件（如lib.es5.d.ts 或 lib.dom.d.ts）\
+2 第三方库的类型声明文件:\
+@types/express
+
+**2. 创建自己的类型声明文件：**
+
+1 项目内共享类型\
+2 为已有 JS 文件提供类型声明。
+
+**declare 关键字：**\
+用于类型声明，为其他地方（比如，.js 文件）已存在的变量声明类型，而不是创建一个新的变量。
+1. 对于 type、interface（只能在 TS 中使用的类型），可以省略 declare关键字
+2. 对于 let、function 等，应该使用 declare 关键字，明确指定此处用于类型声明。
 
 ```js
 declare var 声明全局变量
